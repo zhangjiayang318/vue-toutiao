@@ -59,7 +59,7 @@ export default {
   data() {
     return {
       user: {
-        mobile: "13911111111",
+        mobile: "18251813394",
         code: "246810",
       },
       //   表单验证的规则
@@ -92,17 +92,14 @@ export default {
         // 登录成功跳转到首页
         this.$router.back();
       } catch (err) {
-        if (err.response.status === 400) {
-          this.$toast.fail("登录失败");
-        } else {
-          this.$toast.fail("登录失败", err);
-        }
+        this.$toast("登录失败,请稍后重试");
       }
     },
     // 验证手机号,发送验证码
     async sendCode() {
       try {
-        await this.$refs.moblieRef.validate("mobile");
+        const a = await this.$refs.moblieRef.validate("mobile");
+        console.log(a);
       } catch (err) {
         this.$toast("验证失败!", err);
       }

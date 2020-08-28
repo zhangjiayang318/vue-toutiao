@@ -9,6 +9,7 @@ import "../src/styles/global.less";
 // 引入vant
 import Vant from "vant";
 import "vant/lib/index.css";
+import "./tools/dayjs.js";
 
 Vue.use(Vant);
 

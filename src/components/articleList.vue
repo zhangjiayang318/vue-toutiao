@@ -1,16 +1,71 @@
 <template>
   <div>
-    <!-- list列表 -->
-    <van-list
-      v-model="loading"
-      :finished="finished"
-      finished-text="没有更多了"
-      @load="onLoad"
-      :error.sync="error"
-      error-text="请求失败，点击重新加载"
+    <!--下拉刷新 -->
+    <van-pull-refresh
+      v-model="isLoading"
+      @refresh="onRefresh"
+      :success-text="successText"
+      success-duration="1500"
     >
-      <van-cell v-for="item in newslist" :key="item.art_id" :title="item.title" />
-    </van-list>
+      <!-- list列表 -->
+      <van-list
+        v-model="loading"
+        :finished="finished"
+        finished-text="没有更多了"
+        @load="onLoad"
+        :error.sync="error"
+        error-text="请求失败，点击重新加载"
+      >
+        <van-cell
+          v-for="(item, i) in newslist"
+          :key="i"
+          :title="item.title"
+          class="newslist"
+          is-link
+          :to="{
+            name: 'article',
+            params: {
+              articleId: item.art_id,
+            },
+          }"
+        >
+          <!-- 插槽 -->
+          <div class="van-multi-ellipsis--l2" slot="title">
+            {{ item.title }}
+          </div>
+          <div slot="label" v-if="item.cover.type === 3">
+            <van-image
+              class="cover-img"
+              fit="cover"
+              src="https://img.yzcdn.cn/vant/cat.jpeg"
+            />
+            <van-image
+              class="cover-img"
+              fit="cover"
+              src="https://img.yzcdn.cn/vant/cat.jpeg"
+            />
+            <van-image
+              class="cover-img"
+              fit="cover"
+              src="https://img.yzcdn.cn/vant/cat.jpeg"
+            />
+          </div>
+          <span class="aut_name" slot="label">{{ item.aut_name }}</span>
+          <span class="count" slot="label">评论</span>
+          <span class="pubdate" slot="label">{{
+            item.pubdate | relativeTime
+          }}</span>
+          <!-- 封面区域 -->
+          <div slot="default" class="cover-item" v-if="item.cover.type === 1">
+            <van-image
+              class="cover-img"
+              fit="cover"
+              src="https://img.yzcdn.cn/vant/cat.jpeg"
+            />
+          </div>
+        </van-cell>
+      </van-list>
+    </van-pull-refresh>
   </div>
 </template>
 
@@ -33,6 +88,8 @@ export default {
       //请求下一页数据的时间戳
       timestamp: null,
       error: false,
+      isLoading: false,
+      successText: "",
     };
   },
   methods: {
@@ -68,12 +125,56 @@ export default {
         this.finished = true;
       }
     },
+    // 刷新时触发的事件
+    async onRefresh() {
+      // 发送请求,更新最新的数据
+      const { data } = await newsList({
+        channel_id: this.channel.id,
+        timestamp: Date.now(), //更新最近的数据
+        with_top: 0,
+      });
+      try {
+        this.newslist.unshift(...data.data.results);
+        this.successText = `刷新成功!更新了${data.data.results.length}条数据`;
+        this.isLoading = false;
+      } catch (err) {
+        this.successText = "更新失败,请稍后重试!";
+      }
+    },
   },
 };
 </script>
 
-<style scoped lang='less'>
+<style scoped lang="less">
 .van-list {
   margin-bottom: 100px;
+}
+.cover-img {
+  width: 180px;
+}
+.van-cell__value {
+  flex: unset;
+  width: 232px;
+  height: 146px;
+}
+.newslist {
+  span.count {
+    margin-left: 20px;
+  }
+  span.pubdate {
+    margin-left: 20px;
+  }
+  .cover-img {
+    &:nth-child(2) {
+      margin-left: 20px;
+    }
+    &:nth-child(3) {
+      margin-left: 20px;
+    }
+  }
+  /deep/ .van-image__img {
+    width: 160px !important;
+    height: 160px !important;
+  }
 }
 </style>
