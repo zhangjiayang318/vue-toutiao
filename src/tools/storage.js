@@ -1,8 +1,8 @@
 export const getItem = (key) => {
   const value = window.localStorage.getItem(key);
-  try {
+  if (value) {
     return JSON.parse(value);
-  } catch {
+  } else {
     return value;
   }
 };

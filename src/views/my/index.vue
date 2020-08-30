@@ -4,7 +4,7 @@
     <div v-if="userData" class="logined-top header">
       <div class="userinfo">
         <div class="avatar">
-          <van-image class="avatar-img" :src="userInfoData.photo" round fit="cover" />
+          <van-image class="avatar-img" src="https://img.yzcdn.cn/vant/cat.jpeg" round fit="cover" />
           <div class="nickname">{{userInfoData.name}}</div>
         </div>
         <div class="editinfo">
@@ -99,14 +99,18 @@ export default {
     ...mapState(["userData"]),
   },
   async created() {
-    //   发起个人信息的请求
-    const { data: res } = await userInfo();
-    try {
+    if (this.userData) {
+      //   发起个人信息的请求
+      const { data: res } = await userInfo();
       this.userInfoData = res.data;
       console.log(res.data);
-    } catch {
-      this.$toast("登录失败,请稍后再试!");
+    } else {
+      return;
     }
+    // try {
+    // } catch {
+    //   this.$toast("登录失败,请稍后再试!");
+    // }
   },
 };
 </script>
